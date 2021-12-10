@@ -5,6 +5,14 @@ from .config import settings
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+import cloudinary
+
+
+cloudinary.config(
+    cloud_name = settings.CLOUD_NAME,
+    api_key = settings.CLOUDINARY_API_KEY,
+    api_secret = settings.CLOUDINARY_API_SECRET
+)
 
 
 SQLALCHEMY_DATABASE_URL = f'postgresql://{settings.DATABASE_USERNAME}:{settings.DATABASE_PASSWORD}@{settings.DATABASE_HOSTNAME}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}'

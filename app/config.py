@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     MAIL_TLS: bool
     MAIL_SSL: bool
     SECURITY_PASSWORD_SALT: str
+    CLOUD_NAME: str
+    CLOUDINARY_API_KEY: str
+    CLOUDINARY_API_SECRET: str
 
 
 
