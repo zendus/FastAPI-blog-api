@@ -8,6 +8,7 @@ router = APIRouter(
     prefix="/users"
 )
 
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.UserCreate):
     hashed_password = utils.hash(user.password)
@@ -19,14 +20,14 @@ def create_user(user: schemas.UserCreate):
         return new_user
     except Exception as e:
         error = str(e).replace("\n", " ").replace("\"", " * ")
-        raise HTTPException(status.HTTP_403_FORBIDDEN, f"{error}")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"{error}")
+
 
 
 @router.get("/{id}", status_code=status.HTTP_200_OK, response_model=schemas.UserResponse)
 def get_user_by_id(id: int):
     cursor.execute(""" SELECT * FROM users WHERE id = %s""", (id,))
     user = cursor.fetchone()
-    if not user:
+    if not user or user["is_active"] != True:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"User with id {id} not found")
     return user 
-    
