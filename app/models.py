@@ -28,7 +28,7 @@ class User(Base):
     email = Column(EmailType, unique=True)
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean)
 
 
 class Vote(Base):

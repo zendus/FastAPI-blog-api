@@ -1,7 +1,6 @@
 from fastapi import Response, status, HTTPException, UploadFile, File
 from fastapi.params import Depends
 from fastapi import APIRouter
-from ..database import cursor, conn
 from .. import schemas, utils
 import cloudinary
 import cloudinary.uploader

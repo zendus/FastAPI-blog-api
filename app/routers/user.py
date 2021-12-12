@@ -1,7 +1,9 @@
-from fastapi import Response, status, HTTPException
+from re import M
+from fastapi import Response, status, HTTPException, Depends
 from fastapi.routing import APIRouter
-from ..database import cursor, conn
-from .. import schemas, utils
+from ..database import get_db
+from .. import schemas, utils, models
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     tags=["Users"],
@@ -9,25 +11,55 @@ router = APIRouter(
 )
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-def create_user(user: schemas.UserCreate):
-    hashed_password = utils.hash(user.password)
-    try:
-        cursor.execute(""" INSERT INTO users (username, email, password) VALUES (%s, %s, %s) 
-        RETURNING id, username, email, created_at, is_active """, (user.username, user.email, hashed_password))
-        new_user = cursor.fetchone()
-        conn.commit()
-        return new_user
-    except Exception as e:
-        error = str(e).replace("\n", " ").replace("\"", " * ")
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"{error}")
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    existing_email = db.query(models.User).filter(models.User.email == user.email).first()
+    existing_username = db.query(models.User).filter(models.User.username == user.username).first()
+    if existing_username:    
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"User with username: {user.username} already exists.")
+    if existing_email:    
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"User with email: {user.email} already exists.")
+    user.password = utils.hash(user.password)
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
 
+    return new_user
 
 
 @router.get("/{id}", status_code=status.HTTP_200_OK, response_model=schemas.UserResponse)
-def get_user_by_id(id: int):
-    cursor.execute(""" SELECT * FROM users WHERE id = %s""", (id,))
-    user = cursor.fetchone()
-    if not user or user["is_active"] != True:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, f"User with id {id} not found")
-    return user 
+def get_user_by_id(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"User with id: {id} does not exist.")
+
+    return user
+
+
+@router.put("/{id}", response_model=schemas.UserResponse)
+def update_user(id: int, user: schemas.UserCreate, db: Session = Depends(get_db)):
+    target_user_query = db.query(models.User).filter(models.User.id == id)
+    target_user = target_user_query.first()
+    if target_user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"User with id: {id} does not exist")
+    user.password = utils.hash(user.password)
+    target_user_query.update(user.dict(), synchronize_session=False)
+    db.commit()
+    db.refresh(target_user)
+
+    return target_user
+
+
+@router.delete("/{id}")
+def deactivate_user(id: int, db: Session = Depends(get_db)):
+    target_user_query = db.query(models.User).filter(models.User.id == id)
+    user = target_user_query.first()
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"User with id: {id} does not exist.")
+    target_user_query.delete(synchronize_session=False)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    

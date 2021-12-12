@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
+    is_active: Optional[bool] = False
 
 class UserResponse(BaseModel):
     id: int
