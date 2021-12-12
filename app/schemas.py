@@ -12,6 +12,7 @@ class UserCreate(BaseModel):
     password: str
     is_active: Optional[bool] = False
 
+
 class UserResponse(BaseModel):
     id: int
     username: str
@@ -22,8 +23,18 @@ class UserResponse(BaseModel):
     class Config:
         orm_mode = True
 
+
 class EmailSchema(BaseModel):
     email: List[EmailStr]
+
+
+class TokenData(BaseModel):
+    id: Optional[int]
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 
 @as_form
