@@ -30,6 +30,14 @@ class User(Base):
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
     is_active = Column(Boolean)
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'created_at': self.created_at,
+            'is_active': self.is_active
+        }
 
 class Vote(Base):
     __tablename__ = "votes"
