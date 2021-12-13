@@ -1,9 +1,9 @@
-from re import M
 from fastapi import Response, status, HTTPException, Depends
 from fastapi.routing import APIRouter
 from ..database import get_db
 from .. import schemas, utils, models, oauth2
 from sqlalchemy.orm import Session
+from . import email
 
 router = APIRouter(
     tags=["Users"],
@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     existing_email = db.query(models.User).filter(models.User.email == user.email).first()
     existing_username = db.query(models.User).filter(models.User.username == user.username).first()
     if existing_username:    
@@ -24,7 +24,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-
+    await email.send_email([user.email])
     return new_user
 
 

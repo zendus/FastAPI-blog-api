@@ -1,6 +1,7 @@
 from passlib.context import CryptContext
 from itsdangerous import URLSafeTimedSerializer
 from .config import settings
+from fastapi import status, HTTPException
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -19,5 +20,6 @@ def confirm_token(token, expiration=3600):
     try:
         email = serializer.loads(token, salt=settings.SECURITY_PASSWORD_SALT, max_age=expiration)
     except:
-        return False
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+    detail=f"Unable to validate credentials", headers={"WWW-Authenticate": "Bearer"})
     return email
