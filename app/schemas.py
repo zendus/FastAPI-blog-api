@@ -41,3 +41,44 @@ class Token(BaseModel):
 class PostCreate(BaseModel):
     title: str
     content: str
+    image_url: Optional[str]
+    owner_id: Optional[int]
+
+
+class CommentCreate(BaseModel):
+    post_id: int
+    user_id: int
+    opinion: str
+
+
+class CommentResponse(BaseModel):
+    id: int
+    user_id: int
+    post_id: int
+    opinion: str
+
+    class Config:
+        orm_mode = True
+
+
+class PostResponse(BaseModel):
+    id: int
+    title: str
+    content: str
+    image_url: Optional[str] = None
+    created_at: datetime
+    owner: UserResponse
+
+    class Config:
+        orm_mode = True
+
+class CommentResponseWithOpinionOnly(BaseModel):
+    opinion: int
+
+    class Config:
+        orm_mode = True
+
+
+class PostWithComments(BaseModel):
+    Post: PostResponse
+    Comments: List[CommentResponse]

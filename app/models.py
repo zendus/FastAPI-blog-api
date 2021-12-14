@@ -17,7 +17,7 @@ class Post(Base):
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     owner = relationship("User")
-    comment = relationship("Comment")
+    # comment = relationship("Comment")
 
 
 class User(Base):
