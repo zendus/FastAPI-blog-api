@@ -87,3 +87,8 @@ class CommentResponseWithOpinionOnly(BaseModel):
 class PostWithComments(BaseModel):
     Post: PostResponse
     Comments: List[CommentResponse]
+
+
+@as_form
+class ReverifyUser(BaseModel):
+    email: EmailStr

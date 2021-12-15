@@ -3,6 +3,10 @@ from fastapi.routing import APIRouter
 from fastapi.responses import HTMLResponse
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
+from pydantic.networks import EmailStr
+from starlette.responses import Response
+
+from app.routers.email import send_email
 from .. import schemas, utils, models, oauth2
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -46,4 +50,12 @@ def verify_user(request: Request, token: str, db: Session = Depends(get_db)):
         return templates.TemplateResponse("verify.html", {"request": request, "user": user.username})
     else:
       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-    detail=f"Invalid Token", headers={"WWW-Authenticate": "Bearer"})   
+    detail=f"Invalid Token", headers={"WWW-Authenticate": "Bearer"})  
+
+
+@router.post("/re-verify")
+async def reverify(request: schemas.ReverifyUser = Depends(schemas.ReverifyUser.as_form)):
+    await send_email([request.email])
+    return {"detail": "Email sent"}
+
+
