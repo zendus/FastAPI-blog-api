@@ -48,6 +48,9 @@ def verify_user(request: Request, token: str, db: Session = Depends(get_db)):
         user_query.update(user.to_json(), synchronize_session=False)
         db.commit()
         return templates.TemplateResponse("verify.html", {"request": request, "user": user.username})
+    elif user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+    detail=f"User already verified", headers={"WWW-Authenticate": "Bearer"})
     else:
       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
     detail=f"Invalid Token", headers={"WWW-Authenticate": "Bearer"})  
@@ -57,5 +60,4 @@ def verify_user(request: Request, token: str, db: Session = Depends(get_db)):
 async def reverify(request: schemas.ReverifyUser = Depends(schemas.ReverifyUser.as_form)):
     await send_email([request.email])
     return {"detail": "Email sent"}
-
 
