@@ -52,7 +52,11 @@ class PostUpdate(BaseModel):
 
 class CommentCreate(BaseModel):
     post_id: int
-    user_id: int
+    user_id: Optional[int]
+    opinion: str
+
+
+class CommentUpdate(BaseModel):
     opinion: str
 
 
@@ -89,6 +93,18 @@ class PostWithComments(BaseModel):
     Comments: List[CommentResponse]
 
 
+class PostWithVote(BaseModel):
+    Post: PostResponse
+    Upvotes: int
+
+class PostWithVoteAndComment(BaseModel):
+    detail: PostWithVote
+    comments: List[CommentResponse]
+
 @as_form
 class ReverifyUser(BaseModel):
     email: EmailStr
+
+class Vote(BaseModel):
+    post_id: int
+    dir: conint(le=1, ge=0)
