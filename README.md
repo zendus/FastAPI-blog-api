@@ -28,3 +28,4 @@ A blog API built using FastAPI framework with features like vote post (like, unl
 [ItsDangerous](https://itsdangerous.palletsprojects.com/en/2.0.x/ "itsdangerous documentation") - for generating jwt tokens used for user authentication <br>
 [Fastapi-Mail](https://sabuhish.github.io/fastapi-mail/ "fastapi-mail github documentation") - for sending verification mail to new user <br>
 [Cloudinary](https://pypi.org/project/cloudinary/ "cloudinary pypi") - for post image upload <br>
+[Psycopg2](https://www.psycopg.org/docs/ "psycopg2 documentation") - for postgreSQL database integration <br>
