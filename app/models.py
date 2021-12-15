@@ -28,7 +28,7 @@ class User(Base):
     email = Column(EmailType, unique=True)
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
-    is_active = Column(Boolean)
+    is_active = Column(Boolean, default=False, nullable=False, server_default='FALSE')
 
     def to_json(self):
         return {

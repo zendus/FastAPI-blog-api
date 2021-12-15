@@ -10,7 +10,6 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
-    is_active: Optional[bool] = False
 
 
 class UserResponse(BaseModel):
@@ -43,6 +42,12 @@ class PostCreate(BaseModel):
     content: str
     image_url: Optional[str]
     owner_id: Optional[int]
+
+@as_form
+class PostUpdate(BaseModel):
+    title: str
+    content: str
+    image_url: Optional[str]
 
 
 class CommentCreate(BaseModel):

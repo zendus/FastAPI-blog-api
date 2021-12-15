@@ -56,3 +56,44 @@ limit: Optional[int] = 10, search: Optional[str] = ""):
     posts = db.query(models.Post).filter(or_(models.Post.title.contains(search),
     models.Post.content.contains(search))).limit(limit).all()
     return posts
+
+
+@router.put("/{id}", response_model=schemas.PostResponse)
+def update_post(id: int, file: UploadFile = File(...), 
+post: schemas.PostUpdate = Depends(schemas.PostUpdate.as_form), db: Session = Depends(get_db), 
+current_user: int = Depends(oauth2.get_current_user)):
+    target_post_query = db.query(models.Post).filter(models.Post.id == id)
+    target_post = target_post_query.first()
+    if target_post is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Post with id: {id} does not exist")
+    if target_post.owner_id != current_user.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail=f"Not authorized to perform requested action")
+    if file:
+        try:
+            post_image = cloudinary.uploader.upload(file.file)
+            url = post_image.get("url")
+            post.image_url = url
+        except Exception as e:
+            pass
+    else:
+        post.image_url = None
+    target_post_query.update(post.dict(), synchronize_session=False)
+    db.commit()
+    db.refresh(target_post)
+
+    return 
+    
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(id: int, db: Session = Depends(get_db), 
+current_user: int = Depends(oauth2.get_current_user)):
+    target_post_query = db.query(models.Post).filter(models.Post.id == id)
+    post = target_post_query.first()
+    if post is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Post with id: {id} does not exist.")
+    if post.owner_id != current_user.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail=f"Not authorized to perform requested action")
+    target_post_query.delete(synchronize_session=False)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
