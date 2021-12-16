@@ -29,3 +29,8 @@ A blog API built using FastAPI framework with features like vote post (like, unl
 [Fastapi-Mail](https://sabuhish.github.io/fastapi-mail/ "fastapi-mail github documentation") - for sending verification mail to new user <br>
 [Cloudinary](https://pypi.org/project/cloudinary/ "cloudinary pypi") - for post image upload <br>
 [Psycopg2](https://www.psycopg.org/docs/ "psycopg2 documentation") - for postgreSQL database integration <br>
+
+
+## Documentation 
+
+[Click here to view swagger documentation](https://fastapi-blog-zendus.herokuapp.com/docs "hosted on heroku")<br> 
