@@ -35,7 +35,7 @@ async def send_email(email: List) -> JSONResponse:
                         <br>
                         <a style=" padding: 0.5rem; border-radius: 0.5rem; font-size: 0.5rem; 
                         text-decoration: none; background: #0275d8; color: white;" 
-                        href="http://localhost:8000/verify?token={confirmation_token}">
+                        href="https://fastapi-blog-zendus.herokuapp.com/verify?token={confirmation_token}">
                             Verify your email
                         <a>
                     
