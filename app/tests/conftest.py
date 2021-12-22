@@ -1,19 +1,9 @@
 import pytest
+from ..database import Base, get_db
+from .database import engine, TestingSessionLocal
 from starlette.testclient import TestClient
 from ..main import app
-from ..database import get_db
-from ..database import Base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from ..config import settings
-
-
-SQLALCHEMY_DATABASE_URL = f'postgresql://{settings.DATABASE_USERNAME}:{settings.DATABASE_PASSWORD}@{settings.DATABASE_HOSTNAME}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}_test'
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
+from .. import oauth2
 
 @pytest.fixture
 def session():
@@ -44,3 +34,17 @@ def create_user(client):
     new_user = response.json()
     new_user["password"] = "harrypassword"
     return new_user
+
+
+@pytest.fixture
+def create_access_token(create_user):
+    return oauth2.create_access_token({"user_id": create_user["id"]})
+
+
+@pytest.fixture
+def authorized_client(client, create_access_token):
+    client.headers = {
+        **client.headers,
+        "Authorization": f"Bearer {create_access_token}"
+    }
+    return client
