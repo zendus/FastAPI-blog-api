@@ -4,6 +4,7 @@ from .database import engine, TestingSessionLocal
 from starlette.testclient import TestClient
 from ..main import app
 from .. import oauth2
+from .. import models
 
 @pytest.fixture
 def session():
@@ -48,3 +49,33 @@ def authorized_client(client, create_access_token):
         "Authorization": f"Bearer {create_access_token}"
     }
     return client
+
+
+@pytest.fixture
+def create_test_posts(create_user, session):
+    data = [{
+        "title": "First Post",
+        "content": "First Post Content",
+        "owner_id": create_user["id"]
+    },
+    {
+        "title": "Second Post",
+        "content": "Second Post Content",
+        "owner_id": create_user["id"]
+    },
+    {
+        "title": "Third Post",
+        "content": "Third Post Content",
+        "owner_id": create_user["id"]
+    }]
+
+    def create_post_model(post):
+        return models.Post(**post)
+    
+    post_map = map(create_post_model, data)
+    posts = list(post_map)
+    session.add_all(posts)
+    session.commit()
+
+    posts  = session.query(models.Post).all()
+    return posts 
